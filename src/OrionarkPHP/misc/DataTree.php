@@ -65,7 +65,7 @@ class DataTree {
       return $this;
     }
     $this->parse( $path, $name, $filters );
-	$total_filters = count($filters);
+    $total_filters = count($filters);
     if( $name == ".." ) {
       return $this->_parent->start( $path );
     }
@@ -97,7 +97,7 @@ class DataTree {
      */
     if( 
       ( 
-        strlen( $path ) == 0 && 
+        !$path && 
         $total_filters == 0 
       ) ||
       !$this->initialized( $this->_elements[$name] )
@@ -741,7 +741,7 @@ class DataTree {
      * beginning of the path string.  They are not
      * needed.
      */
-    while( substr( $path, 0, 1 ) == "/" ) {
+    while( $path[0] == "/" ) {
       $path = substr( $path, 1 );
     }
     /**
@@ -750,21 +750,41 @@ class DataTree {
      * of the path string.  This is the 
      * immediate name.
      */
-    preg_match( 
-      "/^([a-zA-Z0-9*_\-]+)/", 
-      $path, 
-      $matches
-    );
-    $name = (
-      isset( $matches[1] ) ? 
-      $matches[1] : 
-      false
-    );
+    $name = "";
+    $chr = 0;
+    $count = 0;
+    while(true)
+    {
+      $chr = (int)$path[$count];
+      if( 
+        (
+          $chr >= 97 && 
+          $chr <= 122 
+        ) 
+        ||
+        (
+          $chr >= 65 && 
+          $chr <= 90 
+        )
+        ||
+        $chr == 42 || 
+        $chr == 95 || 
+        $chr == 45 
+      )
+      {
+        $name .= $path[$count];
+        $count++; 
+      }
+      else
+      {
+        break;
+      }
+    }
     /**
      * If the name wasn't found, something
      * is wrong with the path.
      */
-    if( $name === false ) {
+    if( $count == 0 ) {
       throw new Exception( 
         "Malformed path."
       );
@@ -773,18 +793,13 @@ class DataTree {
      * Remove the extracted immediate name
      * from the path string.
      */
-    $path = preg_replace( 
-      "/" . $name . "/", 
-      "", 
-      $path, 
-      1
-    );
+    $path = substr($path, $count);
     $data = "";
     /**
      * If the remaining path begins with a [ character,
      * then we have a filter to deal with.
      */
-    if( substr( $path, 0, 1 ) == "[" ) {
+    if( $path[0] == "[" ) {
       /**
        * We match the content at the beginning of the
        * remaining path that's between a [ and a ],
@@ -810,8 +825,8 @@ class DataTree {
         );
       }
     }
-    $filters = array();
-    if( strlen( $data ) > 0 ) {
+    if( $data ) {
+      $filters = array();
       //Escape the filter data so it'll play nice with regexp
       $replace = preg_quote( $data );
       $path = preg_replace( 
