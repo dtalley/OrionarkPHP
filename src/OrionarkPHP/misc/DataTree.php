@@ -753,9 +753,11 @@ class DataTree {
     $name = "";
     $chr = 0;
     $count = 0;
+    echo $path . "<br />\n";
     while(true)
     {
       $chr = (int)$path[$count];
+      echo $count . ": " . $chr . "<br />\n";
       if( 
         (
           $chr >= 97 && 
