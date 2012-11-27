@@ -56,12 +56,8 @@ class DataTree {
    * a subsequent element to be added
    */
   public function start( $path, $forceArray = false ) {
-    //If $path is not a string, somebody screwed up
-    if( !is_string( $path ) ) {
-      return NULL;
-    }
     //If $path is empty, we've arrived at our destination
-    if( strlen( $path ) == 0 ) {
+    if( !is_string( $path ) || strlen( $path ) == 0 ) {
       return $this;
     }
     $this->parse( $path, $name, $filters );
@@ -750,6 +746,7 @@ class DataTree {
      * of the path string.  This is the 
      * immediate name.
      */
+    $filters = array();
     $name = "";
     $chr = 0;
     $count = 0;
@@ -786,6 +783,7 @@ class DataTree {
         break;
       }
     }
+    
     /**
      * If the name wasn't found, something
      * is wrong with the path.
@@ -800,6 +798,10 @@ class DataTree {
      * from the path string.
      */
     $path = substr($path, $count);
+    if( !$path )
+    {
+      return;
+    }
     $data = "";
     /**
      * If the remaining path begins with a [ character,
