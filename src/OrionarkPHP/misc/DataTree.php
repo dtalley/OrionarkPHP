@@ -757,7 +757,7 @@ class DataTree {
     while(true)
     {
       $chr = (int)$path[$count];
-      echo $count . ": " . $chr . "<br />\n";
+      echo $count . ": " . $chr . " (" . $path[$count] . ")" . "<br />\n";
       if( 
         (
           $chr >= 97 && 
